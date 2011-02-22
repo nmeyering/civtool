@@ -1,0 +1,111 @@
+#!/bin/bash
+
+if [ ! -d $XDG_CONFIG_HOME/civtool ]
+then
+	mkdir $XDG_CONFIG_HOME/civtool
+	touch $XDG_CONFIG_HOME/civtool/exe_path
+	touch $XDG_CONFIG_HOME/civtool/wine_path
+	touch $XDG_CONFIG_HOME/civtool/player_name
+	touch $XDG_CONFIG_HOME/civtool/user
+	touch $XDG_CONFIG_HOME/civtool/game
+	echo "set paths and player name in ${XDG_CONFIG_HOME}/civtool/ now.."
+	exit
+fi
+
+exe_path=$(cat $XDG_CONFIG_HOME/civtool/exe_path)
+wine_path=$(cat $XDG_CONFIG_HOME/civtool/wine_path)
+player_name=$(cat $XDG_CONFIG_HOME/civtool/player_name)
+game=$(cat $XDG_CONFIG_HOME/civtool/game)
+user=$(cat $XDG_CONFIG_HOME/civtool/user)
+host=cip23.informatik.uos.de
+
+repos_path="${wine_path}/My Games/civ4/Saves/pbem/${game}"
+if [ ! -d "${repos_path}" ]
+then
+	echo "Repository path does not exist!"
+	exit
+fi
+cd "${repos_path}"
+
+if [ $# -eq 0 ]
+then
+	echo "Usage: civ [command]"
+	echo "civ start - starts the game"
+	echo "civ push - pushes your savegame to the git repos, removing old ones PERMANENTLY"
+	echo "civ pull - gets new savegames from the other player"
+	exit
+fi
+
+if [ ! -d .git ]
+then
+	echo "Please run this script from the root of a git repository."
+	exit
+fi
+
+if [ -z $exe_path -o -z $wine_path -o -z $player_name -o -z $game -o -z $user ]
+then
+	echo "One or more variables need to be set first!"
+	exit
+fi
+
+if [ $# -ne 1 ]
+then
+	echo "Specify exactly one command."
+	exit
+fi
+
+if [ $1 = "start" ]
+then
+	echo "Trying to start Civ4: ${exe_path}/Civilization4.exe"
+	exec wine "${exe_path}/Civilization4.exe"
+	exit
+fi
+
+if [ $1 = "pull" ]
+then
+	scp -r "$user@$host:/tmp/civ/" /tmp/
+	if [ $? -ne 0 ] 
+	then
+		echo "scp failed!"
+		exit
+	fi
+	latest_save="$(find /tmp/civ -type f -name "*.Civ4SavedGame" -not -regex "$player_name")"
+	n=$(wc -l <<< "$latest_save")
+	if [ $n -gt 1 ]
+	then
+		echo "Multiple save games match in /tmp/civ."
+		exit
+	elif [ $n -eq 0 ]
+	then
+		echo "No matching save game in /tmp/civ."
+		exit
+	fi
+	# latest_foreign_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
+	# latest_own_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep -v "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
+	if [ -z "${latest_save}" ]
+	then
+		echo "No (new) save game found!"
+		exit
+	fi
+	cp "${latest_save}" "./newest_to_${player_name}.Civ4SavedGame" &&
+	rm -r /tmp/civ
+	exit
+fi
+
+if [ $1 = "push" ]
+then
+	latest_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep -v "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
+	if [ -z $latest_save ]
+	then
+		echo "No new save game found to send to other player!"
+		exit
+	fi
+	scp "${latest_save}" "$user@$host:/tmp/civ/from_${player_name}.Civ4SavedGame" &&
+	echo "${latest_save}" >> turns.txt &&
+	git add turns.txt &&
+	git commit -m "Your turn!" &&
+	git push
+	exit
+fi
+
+echo "Unrecognized command."
