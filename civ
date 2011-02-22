@@ -71,10 +71,6 @@ then
 		exit
 	fi
 	latest_save="$(find /tmp/civ -type f -name "*.Civ4SavedGame" -not -regex ".*$player_name.*")"
-	echo "following save games match for player $player_name: "
-	echo "---"
-	echo "$latest_save"
-	echo "---"
 	n=$(wc -l <<< "$latest_save")
 	if [ $n -gt 1 ]
 	then
