@@ -17,7 +17,7 @@ wine_path=$(cat $XDG_CONFIG_HOME/civtool/wine_path)
 player_name=$(cat $XDG_CONFIG_HOME/civtool/player_name)
 game=$(cat $XDG_CONFIG_HOME/civtool/game)
 user=$(cat $XDG_CONFIG_HOME/civtool/user)
-host=cip23.informatik.uos.de
+host=cip23.informatik.Uni-Osnabrueck.DE
 
 repos_path="${wine_path}/My Games/civ4/Saves/pbem/${game}"
 if [ ! -d "${repos_path}" ]
