@@ -101,7 +101,8 @@ then
 		echo "No new save game found to send to other player!"
 		exit
 	fi
-	scp "${latest_save}" "$user@$host:/tmp/civ/from_${player_name}.Civ4SavedGame" &&
+	chmod 0777 "${latest_save}" &&
+	scp -p "${latest_save}" "$user@$host:/tmp/civ/from_${player_name}.Civ4SavedGame" &&
 	echo "${latest_save}" >> turns.txt &&
 	git add turns.txt &&
 	git commit -m "Your turn!" &&
