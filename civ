@@ -64,13 +64,17 @@ fi
 if [ $1 = "pull" ]
 then
 	git pull &&
-	scp -r "$user@$host:/tmp/civ/" /tmp/
+	scp -r "$user@$host:/tmp/civ" /tmp/
 	if [ $? -ne 0 ] 
 	then
 		echo "scp failed!"
 		exit
 	fi
-	latest_save="$(find /tmp/civ -type f -name "*.Civ4SavedGame" -not -regex "$player_name")"
+	latest_save="$(find /tmp/civ -type f -name "*.Civ4SavedGame" -not -regex ".*$player_name.*")"
+	echo "following save games match for player $player_name: "
+	echo "---"
+	echo "$latest_save"
+	echo "---"
 	n=$(wc -l <<< "$latest_save")
 	if [ $n -gt 1 ]
 	then
