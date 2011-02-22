@@ -106,7 +106,8 @@ then
 	echo "${latest_save}" >> turns.txt &&
 	git add turns.txt &&
 	git commit -m "Your turn!" &&
-	git push
+	git push &&
+	find . -type f -name "*.Civ4SavedGame" -not -regex ".*newest_to_${player_name}.Civ4SavedGame" -delete &&
 	exit
 fi
 
