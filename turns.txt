@@ -51,3 +51,4 @@
 ./sgesanguis_BC-1900_to_Nihilus.Civ4SavedGame
 ./sgesanguis_BC-1900_to_Saladin.Civ4SavedGame
 ./sgesanguis_BC-1840_to_Nihilus.Civ4SavedGame
+./sgesanguis_BC-1840_to_Nihilus.Civ4SavedGame
