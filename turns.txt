@@ -55,3 +55,4 @@
 ./sgesanguis_BC-1840_to_Saladin.Civ4SavedGame
 >>>>>>> f46aaa176454c64526b959117130fc8a4d147e0b
 ./sgesanguis_BC-1780_to_Nihilus.Civ4SavedGame
+./sgesanguis_BC-1780_to_Saladin.Civ4SavedGame
