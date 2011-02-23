@@ -42,3 +42,4 @@
 ./sgesanguis_BC-2200_to_Saladin.Civ4SavedGame
 ./sgesanguis_BC-2140_to_Nihilus.Civ4SavedGame
 ./sgesanguis_BC-2140_to_Saladin.Civ4SavedGame
+./sgesanguis_BC-2080_to_Nihilus.Civ4SavedGame
