@@ -104,6 +104,7 @@ then
 	chmod 0777 "${latest_save}" &&
 	scp -p "${latest_save}" "$user@$host:/tmp/civ/from_${player_name}.Civ4SavedGame" &&
 	echo "${latest_save}" >> turns.txt &&
+	tmp=$(mktemp); uniq < turns.txt > $tmp; mv $tmp turns.txt &&
 	git add turns.txt &&
 	git commit -m "Your turn!" &&
 	git push &&
