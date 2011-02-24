@@ -88,3 +88,4 @@
 ./sgesanguis_BC-0930_to_Saladin.Civ4SavedGame
 ./sgesanguis_BC-0895_to_Nihilus.Civ4SavedGame
 ./sgesanguis_BC-0895_to_Saladin.Civ4SavedGame
+./sgesanguis_BC-0860_to_Nihilus.Civ4SavedGame
