@@ -112,4 +112,16 @@ then
 	exit
 fi
 
+if [ $1 = "stop" ]
+then
+	kill -STOP $(pidof Civilization4.exe)
+	exit
+fi
+
+if [ $1 = "cont" ]
+then
+	kill -CONT $(pidof Civilization4.exe)
+	exit
+fi
+
 echo "Unrecognized command."
