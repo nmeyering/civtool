@@ -18,8 +18,8 @@ player_name=$(cat $XDG_CONFIG_HOME/civtool/player_name)
 game=$(cat $XDG_CONFIG_HOME/civtool/game)
 user=$(cat $XDG_CONFIG_HOME/civtool/user)
 host=cip23.informatik.Uni-Osnabrueck.DE
-osd="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c green -S white -s 3 -u black -O 2 -A center"
-osderr="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c red -S black -s 3 -u white -O 2 -A center"
+osd="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c green -S white -s 3 -u black -O 2 -A left"
+osderr="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c red -S black -s 3 -u white -O 2 -A left"
 
 repos_path="${wine_path}/My Games/civ4/Saves/pbem/${game}"
 if [ ! -d "${repos_path}" ]
