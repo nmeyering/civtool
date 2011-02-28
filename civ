@@ -18,6 +18,8 @@ player_name=$(cat $XDG_CONFIG_HOME/civtool/player_name)
 game=$(cat $XDG_CONFIG_HOME/civtool/game)
 user=$(cat $XDG_CONFIG_HOME/civtool/user)
 host=cip23.informatik.Uni-Osnabrueck.DE
+osd="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c green -S white -s 3 -u black -O 2 -A center"
+osderr="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c red -S black -s 3 -u white -O 2 -A center"
 
 repos_path="${wine_path}/My Games/civ4/Saves/pbem/${game}"
 if [ ! -d "${repos_path}" ]
@@ -68,6 +70,7 @@ then
 	if [ $? -ne 0 ] 
 	then
 		echo "scp failed!"
+		$osderr <<< "scp failed!"
 		exit
 	fi
 	latest_save="$(find /tmp/civ -type f -name "*.Civ4SavedGame" -not -regex ".*$player_name.*")"
@@ -75,10 +78,12 @@ then
 	if [ $n -gt 1 ]
 	then
 		echo "Multiple save games match in /tmp/civ."
+		$osderr <<< "Multiple save games match in /tmp/civ."
 		exit
 	elif [ $n -eq 0 ]
 	then
 		echo "No matching save game in /tmp/civ."
+		$osderr <<< "No matching save game in /tmp/civ."
 		exit
 	fi
 	# latest_foreign_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
@@ -86,10 +91,12 @@ then
 	if [ -z "${latest_save}" ]
 	then
 		echo "No (new) save game found!"
+		$osderr "No (new) save game found!"
 		exit
 	fi
 	cp "${latest_save}" "./newest_to_${player_name}.Civ4SavedGame" &&
-	rm -r /tmp/civ
+	rm -r /tmp/civ &&
+	$osd <<< "pull successful" &&
 	exit
 fi
 
@@ -99,6 +106,7 @@ then
 	if [ -z $latest_save ]
 	then
 		echo "No new save game found to send to other player!"
+		$osderr <<< "No new save game found to send to other player!"
 		exit
 	fi
 	chmod 0777 "${latest_save}" &&
@@ -109,18 +117,21 @@ then
 	git commit -m "Your turn!" &&
 	git push &&
 	find . -type f -name "*.Civ4SavedGame" -not -regex ".*newest_to_${player_name}.Civ4SavedGame" -delete &&
+	$osd <<< "push successful" &&
 	exit
 fi
 
 if [ $1 = "stop" ]
 then
 	kill -STOP $(pidof Civilization4.exe)
+	$osd <<< "suspended"
 	exit
 fi
 
 if [ $1 = "cont" ]
 then
 	kill -CONT $(pidof Civilization4.exe)
+	$osd <<< "resumed"
 	exit
 fi
 
