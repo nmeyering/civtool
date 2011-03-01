@@ -123,7 +123,7 @@ then
 		echo "git add failed!"
 		$osderr <<< "git add failed!"
 	fi
-	if git commit -m "Your turn!"
+	if ! git commit -m "Your turn!"
 	then
 		echo "git commit failed!"
 		$osderr <<< "git commit failed!"
