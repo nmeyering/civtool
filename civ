@@ -136,7 +136,7 @@ civpush()
 	echo "${latest_save}" >> turns.txt
 	echo "added ${latest_save} to turns.txt"
 	tmp=$(mktemp)
-	uniq < sort turns.txt > $tmp
+	sort turns.txt | uniq > $tmp
 	mv $tmp turns.txt
 
 	if ! git add turns.txt
