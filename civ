@@ -88,7 +88,7 @@ civpull()
 	fi
 	if ! scp -r "$user@$host:/tmp/civ" /tmp/
 	then
-		civerr "scp failed!"
+		civerr "scp failed while pulling!"
 		exit
 	fi
 	latest_save="$(find /tmp/civ -type f -name "*.Civ4SavedGame" -not -regex ".*$player_name.*")"
@@ -128,9 +128,16 @@ civpush()
 		exit
 	fi
 	chmod 0777 "${latest_save}" &&
-	scp -p "${latest_save}" "$user@$host:/tmp/civ/from_${player_name}.Civ4SavedGame" &&
-	echo "${latest_save}" >> turns.txt &&
-	tmp=$(mktemp); uniq < turns.txt > $tmp; mv $tmp turns.txt &&
+	if ! scp -p "${latest_save}" "$user@$host:/tmp/civ/from_${player_name}.Civ4SavedGame"
+	then
+		civerr "scp failed while pushing!"
+		exit
+	fi
+	echo "${latest_save}" >> turns.txt
+	tmp=$(mktemp)
+	uniq < turns.txt > $tmp
+	mv $tmp turns.txt
+
 	if ! git add turns.txt
 	then
 		civerr "git add failed!"

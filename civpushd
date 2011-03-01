@@ -1,4 +1,9 @@
 #!/bin/bash
-while inotifywait -e create .; do
-	civ push
+while msg=$(inotifywait -e create --format '%f' . )
+do
+	if grep -e ".*\.Civ4SavedGame$" <<< $msg
+	then
+		echo "would try to push: $msg"
+		#civ push
+	fi
 done
