@@ -96,7 +96,12 @@ then
 	fi
 	cp "${latest_save}" "./newest_to_${player_name}.Civ4SavedGame" &&
 	rm -r /tmp/civ &&
-	$osd <<< "pull successful" &&
+	if [ $? -eq 0 ]
+	then
+		$osd <<< "pull successful"
+	else
+		$osderr <<< "pull failed!"
+	fi
 	exit
 fi
 
@@ -113,25 +118,49 @@ then
 	scp -p "${latest_save}" "$user@$host:/tmp/civ/from_${player_name}.Civ4SavedGame" &&
 	echo "${latest_save}" >> turns.txt &&
 	tmp=$(mktemp); uniq < turns.txt > $tmp; mv $tmp turns.txt &&
-	git add turns.txt &&
-	git commit -m "Your turn!" &&
-	git push &&
-	find . -type f -name "*.Civ4SavedGame" -not -regex ".*newest_to_${player_name}.Civ4SavedGame" -delete &&
-	$osd <<< "push successful" &&
+	if ! git add turns.txt
+	then
+		echo "git add failed!"
+		$osderr <<< "git add failed!"
+	fi
+	if git commit -m "Your turn!"
+	then
+		echo "git commit failed!"
+		$osderr <<< "git commit failed!"
+	fi
+	if ! git push 
+	then
+		echo "git push failed!"
+		$osderr <<< "git push failed!"
+	fi
+	if find . -type f -name "*.Civ4SavedGame" -not -regex ".*newest_to_${player_name}.Civ4SavedGame" -delete
+	then
+		$osd <<< "push successful!"
+	else
+		$osderr <<< "push failed: couldn't find and remove the latest savegame!"
+	fi
 	exit
 fi
 
 if [ $1 = "stop" ]
 then
-	kill -STOP $(pidof Civilization4.exe)
-	$osd <<< "suspended"
+	if kill -STOP $(pidof Civilization4.exe)
+	then
+		$osd <<< "suspended" &
+	else
+		$osderr <<< "suspend failed!"
+	fi
 	exit
 fi
 
 if [ $1 = "cont" ]
 then
-	kill -CONT $(pidof Civilization4.exe)
-	$osd <<< "resumed"
+	if kill -CONT $(pidof Civilization4.exe)
+	then
+		$osd <<< "resumed" &
+	else
+		$osderr <<< "resume failed!"
+	fi
 	exit
 fi
 
