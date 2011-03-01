@@ -149,3 +149,4 @@
 ./sgesanguis_AD-0200_to_Nihilus.Civ4SavedGame
 ./sgesanguis_AD-0200_to_Saladin.Civ4SavedGame
 ./sgesanguis_AD-0200_to_Nihilus.Civ4SavedGame
+./sgesanguis_AD-0200_to_Saladin.Civ4SavedGame
