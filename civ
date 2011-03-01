@@ -56,15 +56,14 @@ then
 	exit
 fi
 
-if [ $1 = "start" ]
-then
+civstart()
+{
 	echo "Trying to start Civ4: ${exe_path}/Civilization4.exe"
 	exec wine "${exe_path}/Civilization4.exe"
-	exit
-fi
+}
 
-if [ $1 = "pull" ]
-then
+civpull()
+{
 	git pull &&
 	scp -r "$user@$host:/tmp/civ" /tmp/
 	if [ $? -ne 0 ] 
@@ -102,11 +101,10 @@ then
 	else
 		$osderr <<< "pull failed!"
 	fi
-	exit
-fi
+}
 
-if [ $1 = "push" ]
-then
+civpush()
+{
 	latest_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep -v "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
 	if [ -z $latest_save ]
 	then
@@ -139,11 +137,10 @@ then
 	else
 		$osderr <<< "push failed: couldn't find and remove the latest savegame!"
 	fi
-	exit
-fi
+}
 
-if [ $1 = "stop" ]
-then
+civstop()
+{
 	if kill -STOP $(pidof Civilization4.exe)
 	then
 		$osd <<< "suspended" &
@@ -151,17 +148,35 @@ then
 		$osderr <<< "suspend failed!"
 	fi
 	exit
-fi
+}
 
-if [ $1 = "cont" ]
-then
+civcont()
+{
 	if kill -CONT $(pidof Civilization4.exe)
 	then
 		$osd <<< "resumed" &
 	else
 		$osderr <<< "resume failed!"
 	fi
-	exit
-fi
+}
 
-echo "Unrecognized command."
+civerr()
+{
+	echo $1 1>&2
+	$osderr <<< $1
+}
+
+civout()
+{
+	echo $1
+	$osd <<< $1
+}
+
+case "$1" in 
+	"start"	) civstart ;; 
+	"pull"	) civpull ;;
+	"push"	) civpush ;; 
+	"stop" 	) civstop ;; 
+	"cont" 	) civcont ;; 
+	* ) echo "unrecognized command" ;;
+esac
