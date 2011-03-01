@@ -96,7 +96,7 @@ then
 	fi
 	cp "${latest_save}" "./newest_to_${player_name}.Civ4SavedGame" &&
 	rm -r /tmp/civ &&
-	if [ $! = 0 ]
+	if [ $? -eq 0 ]
 	then
 		$osd <<< "pull successful"
 	else
@@ -138,6 +138,7 @@ then
 		$osd <<< "push successful!"
 	else
 		$osderr <<< "push failed: couldn't find and remove the latest savegame!"
+	fi
 	exit
 fi
 
@@ -145,7 +146,7 @@ if [ $1 = "stop" ]
 then
 	if kill -STOP $(pidof Civilization4.exe)
 	then
-		$osd <<< "suspended"
+		$osd <<< "suspended" &
 	else
 		$osderr <<< "suspend failed!"
 	fi
@@ -156,7 +157,7 @@ if [ $1 = "cont" ]
 then
 	if kill -CONT $(pidof Civilization4.exe)
 	then
-		$osd <<< "resumed"
+		$osd <<< "resumed" &
 	else
 		$osderr <<< "resume failed!"
 	fi
