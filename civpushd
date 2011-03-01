@@ -3,7 +3,6 @@ while msg=$(inotifywait -e create --format '%f' . )
 do
 	if grep -e ".*\.Civ4SavedGame$" <<< $msg
 	then
-		echo "would try to push: $msg"
-		#civ push
+		civ push
 	fi
 done
