@@ -71,7 +71,7 @@ fi
 civstart()
 {
 	civout "Starting up: ${exe_path}/Civilization4.exe"
-	wine "${exe_path}/Civilization4.exe" &
+	wine "${exe_path}/Civilization4.exe" &> /dev/null &
 	civ_pid=$!
 	civpushd &
 	civpushd_pid=$!
@@ -84,10 +84,12 @@ civpull()
 	if ! git pull
 	then
 		civerr "git pull failed!"
+		exit
 	fi
 	if ! scp -r "$user@$host:/tmp/civ" /tmp/
 	then
 		civerr "scp failed!"
+		exit
 	fi
 	latest_save="$(find /tmp/civ -type f -name "*.Civ4SavedGame" -not -regex ".*$player_name.*")"
 	n=$(wc -l <<< "$latest_save")
@@ -132,14 +134,17 @@ civpush()
 	if ! git add turns.txt
 	then
 		civerr "git add failed!"
+		exit
 	fi
 	if ! git commit -m "Your turn!"
 	then
 		civerr "git commit failed!"
+		exit
 	fi
 	if ! git push 
 	then
 		civerr "git push failed!"
+		exit
 	fi
 	if find . -type f -name "*.Civ4SavedGame" -not -regex ".*newest_to_${player_name}.Civ4SavedGame" -delete
 	then
