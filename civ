@@ -73,7 +73,7 @@ civstart()
 	civout "Starting up: ${exe_path}/Civilization4.exe"
 	wine "${exe_path}/Civilization4.exe" &> /dev/null &
 	civ_pid=$!
-	civpushd &
+	./civpushd &
 	civpushd_pid=$!
 	wait $civ_pid
 	kill $civpushd_pid
