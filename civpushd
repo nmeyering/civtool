@@ -1,0 +1,4 @@
+#!/bin/bash
+while inotifywait -e create .; do
+	civ push
+done

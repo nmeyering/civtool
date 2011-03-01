@@ -71,7 +71,12 @@ fi
 civstart()
 {
 	civout "Starting up: ${exe_path}/Civilization4.exe"
-	exec wine "${exe_path}/Civilization4.exe"
+	wine "${exe_path}/Civilization4.exe" &
+	civ_pid=$!
+	civpushd &
+	civpushd_pid=$!
+	wait $civ_pid
+	kill $civpushd_pid
 }
 
 civpull()
@@ -164,7 +169,6 @@ civcont()
 		civerr "resume failed!"
 	fi
 }
-
 
 case "$1" in 
 	"start"	) civstart ;; 
