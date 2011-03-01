@@ -21,6 +21,18 @@ host=cip23.informatik.Uni-Osnabrueck.DE
 osd="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c green -S white -s 3 -u black -O 2 -A left"
 osderr="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c red -S black -s 3 -u white -O 2 -A left"
 
+civerr()
+{
+	echo $1 1>&2
+	$osderr <<< $1 &
+}
+
+civout()
+{
+	echo $1
+	$osd <<< $1 &
+}
+
 repos_path="${wine_path}/My Games/civ4/Saves/pbem/${game}"
 if [ ! -d "${repos_path}" ]
 then
@@ -58,48 +70,45 @@ fi
 
 civstart()
 {
-	echo "Trying to start Civ4: ${exe_path}/Civilization4.exe"
+	civout "Starting up: ${exe_path}/Civilization4.exe"
 	exec wine "${exe_path}/Civilization4.exe"
 }
 
 civpull()
 {
-	git pull &&
-	scp -r "$user@$host:/tmp/civ" /tmp/
-	if [ $? -ne 0 ] 
+	if ! git pull
 	then
-		echo "scp failed!"
-		$osderr <<< "scp failed!"
-		exit
+		civerr "git pull failed!"
+	fi
+	if ! scp -r "$user@$host:/tmp/civ" /tmp/
+	then
+		civerr "scp failed!"
 	fi
 	latest_save="$(find /tmp/civ -type f -name "*.Civ4SavedGame" -not -regex ".*$player_name.*")"
 	n=$(wc -l <<< "$latest_save")
 	if [ $n -gt 1 ]
 	then
-		echo "Multiple save games match in /tmp/civ."
-		$osderr <<< "Multiple save games match in /tmp/civ."
+		civerr "Multiple save games match in /tmp/civ."
 		exit
 	elif [ $n -eq 0 ]
 	then
-		echo "No matching save game in /tmp/civ."
-		$osderr <<< "No matching save game in /tmp/civ."
+		civerr "No matching save game in /tmp/civ."
 		exit
 	fi
 	# latest_foreign_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
 	# latest_own_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep -v "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
 	if [ -z "${latest_save}" ]
 	then
-		echo "No (new) save game found!"
-		$osderr "No (new) save game found!"
+		civerr "No (new) save game found!"
 		exit
 	fi
 	cp "${latest_save}" "./newest_to_${player_name}.Civ4SavedGame" &&
 	rm -r /tmp/civ &&
 	if [ $? -eq 0 ]
 	then
-		$osd <<< "pull successful"
+		civout "civ pull successful"
 	else
-		$osderr <<< "pull failed!"
+		civerr "civ pull failed!"
 	fi
 }
 
@@ -108,8 +117,7 @@ civpush()
 	latest_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep -v "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
 	if [ -z $latest_save ]
 	then
-		echo "No new save game found to send to other player!"
-		$osderr <<< "No new save game found to send to other player!"
+		civerr "No new save game found to send to other player!"
 		exit
 	fi
 	chmod 0777 "${latest_save}" &&
@@ -118,24 +126,21 @@ civpush()
 	tmp=$(mktemp); uniq < turns.txt > $tmp; mv $tmp turns.txt &&
 	if ! git add turns.txt
 	then
-		echo "git add failed!"
-		$osderr <<< "git add failed!"
+		civerr "git add failed!"
 	fi
 	if ! git commit -m "Your turn!"
 	then
-		echo "git commit failed!"
-		$osderr <<< "git commit failed!"
+		civerr "git commit failed!"
 	fi
 	if ! git push 
 	then
-		echo "git push failed!"
-		$osderr <<< "git push failed!"
+		civerr "git push failed!"
 	fi
 	if find . -type f -name "*.Civ4SavedGame" -not -regex ".*newest_to_${player_name}.Civ4SavedGame" -delete
 	then
-		$osd <<< "push successful!"
+		civout "push successful!"
 	else
-		$osderr <<< "push failed: couldn't find and remove the latest savegame!"
+		civerr "push failed: couldn't find and remove the latest savegame!"
 	fi
 }
 
@@ -143,9 +148,9 @@ civstop()
 {
 	if kill -STOP $(pidof Civilization4.exe)
 	then
-		$osd <<< "suspended" &
+		civout "suspended"
 	else
-		$osderr <<< "suspend failed!"
+		civerr "suspend failed!"
 	fi
 	exit
 }
@@ -154,29 +159,23 @@ civcont()
 {
 	if kill -CONT $(pidof Civilization4.exe)
 	then
-		$osd <<< "resumed" &
+		civout "resumed"
 	else
-		$osderr <<< "resume failed!"
+		civerr "resume failed!"
 	fi
 }
 
-civerr()
-{
-	echo $1 1>&2
-	$osderr <<< $1
-}
-
-civout()
-{
-	echo $1
-	$osd <<< $1
-}
 
 case "$1" in 
 	"start"	) civstart ;; 
 	"pull"	) civpull ;;
 	"push"	) civpush ;; 
 	"stop" 	) civstop ;; 
-	"cont" 	) civcont ;; 
+	"pause" )	civstop ;;
+	"suspend" ) civstop ;;
+	"cont" ) civcont ;; 
+	"resume" ) civcont ;; 
+	"continue"	) civcont ;; 
+	"unpause"	) civcont ;; 
 	* ) echo "unrecognized command" ;;
 esac
