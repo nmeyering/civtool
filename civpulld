@@ -10,8 +10,8 @@ fi
 
 while true
 do
-	response=$(nc -l -p $port $host)
-	if [ "$response" = "pull-request" ]
+	response=$(nc -l -p $port $opponent)
+	if [[ "$response" = "pull-request" ]]
 	then
 		exec civ pull
 	else
