@@ -94,8 +94,10 @@ civstart()
 	civ_pid=$!
 	./civpushd &
 	civpushd_pid=$!
+	./civpulld &
+	civpulld_pid=$!
 	wait $civ_pid
-	kill $civpushd_pid
+	kill $civpushd_pid $civpulld_pid
 }
 
 civpull()
