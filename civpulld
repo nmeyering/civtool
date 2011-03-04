@@ -10,11 +10,11 @@ fi
 
 while true
 do
-	response=$(nc -l -p $port $opponent)
+	response=$(nc -l -p $port)
 	if [[ "$response" = "pull-request" ]]
 	then
 		exec civ pull
 	else
-		echo "[civpulld] got faulty response"
+		echo "[civpulld] encountered an error"
 	fi
 done
