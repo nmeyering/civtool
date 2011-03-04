@@ -5,15 +5,18 @@ opponent=$(cat $XDG_CONFIG_HOME/civtool/opponent)
 # enable auto-pull
 if ! (which nc &> /dev/null && [[ -n $opponent ]] && [[ -n $port ]])
 then
+	echo "[civpulld] couldn't start!"
 	exit 1
 fi
 
 while true
 do
+	echo "[civpulld] listening for pull requests from $opponent on port $port..."
 	response=$(nc -l -p $port)
 	if [[ "$response" = "pull-request" ]]
 	then
-		exec civ pull
+		echo "[civpulld] received a pull request, pulling..."
+		civ pull
 	else
 		echo "[civpulld] encountered an error"
 	fi

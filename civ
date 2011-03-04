@@ -83,6 +83,7 @@ civping()
 {
 	if [[ -n $autopull ]]
 	then
+		echo "[civ] sending a pull request to $opponent on port $port"
 		echo "pull-request" | nc $opponent $port
 	fi
 }
