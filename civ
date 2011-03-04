@@ -210,7 +210,8 @@ case "$1" in
 	"stop" 	) civstop ;; 
 	"pause" )	civstop ;;
 	"suspend" ) civstop ;;
-	"co*" ) civcont ;; 
+	"cont" ) civcont ;; 
+	"continue" ) civcont ;; 
 	"resume" ) civcont ;; 
 	"unpause"	) civcont ;; 
 	* ) echo "unrecognized command" ;;
