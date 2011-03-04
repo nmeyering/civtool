@@ -17,13 +17,24 @@ wine_path=$(cat $XDG_CONFIG_HOME/civtool/wine_path)
 player_name=$(cat $XDG_CONFIG_HOME/civtool/player_name)
 game=$(cat $XDG_CONFIG_HOME/civtool/game)
 user=$(cat $XDG_CONFIG_HOME/civtool/user)
-host=cip23.informatik.Uni-Osnabrueck.DE
+# set this to the common server that will be used as a mailbox to exchange savegames
+host=$(cat $XDG_CONFIG_HOME/civtool/host)
+# set this to your opponent's IP address or hostname if you want to enable auto-pulling
+opponent=$(cat $XDG_CONFIG_HOME/civtool/opponent)
+# set this to the port to use for pulling and sending pull-requests
+opponent=$(cat $XDG_CONFIG_HOME/civtool/port)
+# can auto-pull
+if which nc &> /dev/null && [[ -n $opponent ]] && [[ -n $port ]]
+then
+	autopull="yes"
+fi
+
 osd="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c green -S white -s 3 -u black -O 2 -A left"
 osderr="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c red -S black -s 3 -u white -O 2 -A left"
 
 civerr()
 {
-	echo $1 1>&2
+	echo $1
 	$osderr <<< $1 &
 }
 
@@ -56,7 +67,7 @@ then
 	exit
 fi
 
-if [ -z $exe_path -o -z $wine_path -o -z $player_name -o -z $game -o -z $user ]
+if [ -z $exe_path -o -z $wine_path -o -z $player_name -o -z $game -o -z $user -o -z $host ]
 then
 	echo "One or more variables need to be set first!"
 	exit
@@ -67,6 +78,14 @@ then
 	echo "Specify exactly one command."
 	exit
 fi
+
+civping()
+{
+	if [[ -n $autopull ]]
+	then
+		echo "pull-request" | nc $opponent $port
+	fi
+}
 
 civstart()
 {
@@ -157,6 +176,7 @@ civpush()
 	if find . -type f -name "*.Civ4SavedGame" -not -regex ".*newest_to_${player_name}.Civ4SavedGame" -delete
 	then
 		civout "push successful!"
+		civping
 	else
 		civerr "push failed: couldn't find and remove the latest savegame!"
 	fi
@@ -190,9 +210,8 @@ case "$1" in
 	"stop" 	) civstop ;; 
 	"pause" )	civstop ;;
 	"suspend" ) civstop ;;
-	"cont" ) civcont ;; 
+	"co*" ) civcont ;; 
 	"resume" ) civcont ;; 
-	"continue"	) civcont ;; 
 	"unpause"	) civcont ;; 
 	* ) echo "unrecognized command" ;;
 esac

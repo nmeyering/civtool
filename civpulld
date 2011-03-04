@@ -1,0 +1,20 @@
+#!/bin/bash
+port=$(cat $XDG_CONFIG_HOME/civtool/port)
+opponent=$(cat $XDG_CONFIG_HOME/civtool/opponent)
+
+# enable auto-pull
+if ! (which nc &> /dev/null && [[ -n $opponent ]] && [[ -n $port ]])
+then
+	exit 1
+fi
+
+while true
+do
+	response=$(nc -l -p $port $host)
+	if [ "$response" = "pull-request" ]
+	then
+		exec civ pull
+	else
+		echo "[civpulld] got faulty response"
+	fi
+done
