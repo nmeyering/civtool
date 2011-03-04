@@ -67,7 +67,7 @@ then
 	exit
 fi
 
-if [ -z $exe_path -o -z $wine_path -o -z $player_name -o -z $game -o -z $user -o -z $host ]
+if [ -z "$exe_path" -o -z "$wine_path" -o -z "$player_name" -o -z "$game" -o -z "$user" -o -z "$host" ]
 then
 	echo "One or more variables need to be set first!"
 	exit
