@@ -12,12 +12,17 @@ fi
 while true
 do
 	echo "[civpulld] listening for pull requests from $opponent on port $port..."
-	response=$(nc -l -p $port)
-	if [[ "$response" = "pull-request" ]]
+	response=$(nc -q 0 -vv -l -p $port)
+	if [[ $? -eq 0 ]]
 	then
-		echo "[civpulld] received a pull request, pulling..."
-		civ pull
+		if [[ "$response" = "pull-request" ]]
+		then
+			echo "[civpulld] received a pull request, would be pulling..."
+			#civ pull
+		else
+			echo "[civpulld] recieved something other than a valid request!"
+		fi
 	else
-		echo "[civpulld] encountered an error"
+		echo "[civpulld] encountered an error!"
 	fi
 done

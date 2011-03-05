@@ -1,4 +1,6 @@
 #!/bin/bash
+exec &>> /tmp/civtool.log
+echo "[civ] ---------- started ----------"
 
 if [ ! -d $XDG_CONFIG_HOME/civtool ]
 then
@@ -84,7 +86,9 @@ civping()
 	if [[ -n $autopull ]]
 	then
 		echo "[civ] sending a pull request to $opponent on port $port"
-		echo "pull-request" | nc $opponent $port
+		nc -vv -q 0 $opponent $port <<< "pull-request"
+	else
+		echo "[civ] not using autopull"
 	fi
 }
 
@@ -206,6 +210,13 @@ civcont()
 	fi
 }
 
+civtest()
+{
+	echo "[civ] starting up pull daemon."
+	./civpulld &
+	wait
+}
+
 case "$1" in 
 	"start"	) civstart ;; 
 	"pull"	) civpull ;;
@@ -217,5 +228,7 @@ case "$1" in
 	"continue" ) civcont ;; 
 	"resume" ) civcont ;; 
 	"unpause"	) civcont ;; 
+	"ping" ) civping ;;
+	"test" ) civtest ;;
 	* ) echo "unrecognized command" ;;
 esac
