@@ -24,7 +24,7 @@ host=$(cat $XDG_CONFIG_HOME/civtool/host)
 # set this to your opponent's IP address or hostname if you want to enable auto-pulling
 opponent=$(cat $XDG_CONFIG_HOME/civtool/opponent)
 # set this to the port to use for pulling and sending pull-requests
-opponent=$(cat $XDG_CONFIG_HOME/civtool/port)
+port=$(cat $XDG_CONFIG_HOME/civtool/port)
 # can auto-pull
 if which nc &> /dev/null && [[ -n $opponent ]] && [[ -n $port ]]
 then
@@ -88,7 +88,7 @@ civping()
 		echo "[civ] sending a pull request to $opponent on port $port"
 		nc -vv -q 0 $opponent $port <<< "pull-request"
 	else
-		echo "[civ] not using autopull"
+		echo "[civ] not using autopull: nc=$(which nc); opponent=$opponent; port=$port"
 	fi
 }
 
