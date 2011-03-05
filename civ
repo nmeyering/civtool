@@ -30,6 +30,7 @@ if which nc &> /dev/null && [[ -n $opponent ]] && [[ -n $port ]]
 then
 	autopull="yes"
 fi
+trap 'kill %%; kill $cipushd_pid $civpulld_pid; exit 1' SIGINT SIGTERM
 
 osd="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c green -S white -s 3 -u black -O 2 -A left"
 osderr="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c red -S black -s 3 -u white -O 2 -A left"
