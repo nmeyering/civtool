@@ -20,7 +20,7 @@ do
 			echo "[civpulld] received a pull request, would be pulling..."
 			#civ pull
 		else
-			echo "[civpulld] recieved something other than a valid request!"
+			echo "[civpulld] recieved something other than a valid request: $response"
 		fi
 	else
 		echo "[civpulld] encountered an error!"
