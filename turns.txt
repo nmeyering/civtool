@@ -104,6 +104,7 @@
 ./sgesanguis_AD-1250_to_Saladin.Civ4SavedGame
 ./sgesanguis_AD-1265_to_Nihilus.Civ4SavedGame
 ./sgesanguis_AD-1265_to_Saladin.Civ4SavedGame
+./sgesanguis_AD-1280_to_Nihilus.Civ4SavedGame
 ./sgesanguis_BC-0020_to_Nihilus.Civ4SavedGame
 ./sgesanguis_BC-0020_to_Saladin.Civ4SavedGame
 ./sgesanguis_BC-0055_to_Nihilus.Civ4SavedGame
