@@ -2,7 +2,7 @@
 exec &>> /tmp/civtool.log
 echo "[civ] ---------- started ----------"
 
-if [ ! -d $XDG_CONFIG_HOME/civtool ]
+if [[ ! -d $XDG_CONFIG_HOME/civtool ]]
 then
 	mkdir $XDG_CONFIG_HOME/civtool
 	touch $XDG_CONFIG_HOME/civtool/exe_path
@@ -26,11 +26,25 @@ opponent=$(cat $XDG_CONFIG_HOME/civtool/opponent)
 # set this to the port to use for pulling and sending pull-requests
 port=$(cat $XDG_CONFIG_HOME/civtool/port)
 # can auto-pull
+unset autopull
 if which nc &> /dev/null && [[ -n $opponent ]] && [[ -n $port ]]
 then
 	autopull="yes"
 fi
-trap 'kill %%; kill $cipushd_pid $civpulld_pid; exit 1' SIGINT SIGTERM
+
+cleanup()
+{
+	children=$(jobs -p)
+	if ((${#children} > 0))
+	then
+		for c in $children
+		do
+			kill $c
+		done
+	fi
+}
+
+trap cleanup EXIT
 
 osd="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c green -S white -s 3 -u black -O 2 -A left"
 osderr="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c red -S black -s 3 -u white -O 2 -A left"
@@ -48,14 +62,14 @@ civout()
 }
 
 repos_path="${wine_path}/My Games/civ4/Saves/pbem/${game}"
-if [ ! -d "${repos_path}" ]
+if [[ ! -d "${repos_path}" ]]
 then
 	echo "Repository path does not exist!"
 	exit
 fi
 cd "${repos_path}"
 
-if [ $# -eq 0 ]
+if [[ $# -eq 0 ]]
 then
 	echo "Usage: civ [command]"
 	echo "civ start - starts the game"
@@ -64,19 +78,19 @@ then
 	exit
 fi
 
-if [ ! -d .git ]
+if [[ ! -d .git ]]
 then
 	echo "Please run this script from the root of a git repository."
 	exit
 fi
 
-if [ -z "$exe_path" -o -z "$wine_path" -o -z "$player_name" -o -z "$game" -o -z "$user" -o -z "$host" ]
+if [[ -z "$exe_path" || -z "$wine_path" || -z "$player_name" || -z "$game" || -z "$user" || -z "$host" ]]
 then
 	echo "One or more variables need to be set first!"
 	exit
 fi
 
-if [ $# -ne 1 ]
+if [[ $# -ne 1 ]]
 then
 	echo "Specify exactly one command."
 	exit
@@ -103,7 +117,8 @@ civstart()
 	./civpulld &
 	civpulld_pid=$!
 	wait $civ_pid
-	kill $civpushd_pid $civpulld_pid
+	kill $civpulld_pid
+	pkill -9 -P $civpulld_pid
 }
 
 civpull()
@@ -120,25 +135,25 @@ civpull()
 	fi
 	latest_save="$(find /tmp/civ -type f -name "*.Civ4SavedGame" -not -regex ".*$player_name.*")"
 	n=$(wc -l <<< "$latest_save")
-	if [ $n -gt 1 ]
+	if [[ $n -gt 1 ]]
 	then
 		civerr "Multiple save games match in /tmp/civ."
 		exit
-	elif [ $n -eq 0 ]
+	elif [[ $n -eq 0 ]]
 	then
 		civerr "No matching save game in /tmp/civ."
 		exit
 	fi
 	# latest_foreign_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
 	# latest_own_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep -v "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
-	if [ -z "${latest_save}" ]
+	if [[ -z "${latest_save}" ]]
 	then
 		civerr "No (new) save game found!"
 		exit
 	fi
 	cp "${latest_save}" "./newest_to_${player_name}.Civ4SavedGame" &&
 	rm -r /tmp/civ &&
-	if [ $? -eq 0 ]
+	if [[ $? -eq 0 ]]
 	then
 		civout "civ pull successful"
 	else
@@ -149,7 +164,7 @@ civpull()
 civpush()
 {
 	latest_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep -v "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
-	if [ -z $latest_save ]
+	if [[ -z $latest_save ]]
 	then
 		civerr "No new save game found to send to other player!"
 		exit
