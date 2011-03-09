@@ -46,8 +46,8 @@ cleanup()
 
 trap cleanup EXIT
 
-osd="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c green -S white -s 3 -u black -O 2 -A left"
-osderr="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c red -S black -s 3 -u white -O 2 -A left"
+osd="osd_cat -f -*-*-medium-r-*--48-*-*-*-*-*-*-* -c green -S white -s 6 -u black -O 2 -A center -o 300"
+osderr="osd_cat -f -*-*-medium-r-*--48-*-*-*-*-*-*-* -c red -S black -s 6 -u white -O 2 -A center -o 300"
 
 civerr()
 {
@@ -117,8 +117,11 @@ civstart()
 	./civpulld &
 	civpulld_pid=$!
 	wait $civ_pid
+	tmp_pid=$(pgrep -P $civpulld_pid)
+	echo "[civ] killing civpulld instance $civpulld_pid"
 	kill $civpulld_pid
-	pkill -9 -P $civpulld_pid
+	echo "[civ] killing nc instance $tmp_pid"
+	kill -9 $tmp_pid
 }
 
 civpull()
