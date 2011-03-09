@@ -46,8 +46,8 @@ cleanup()
 
 trap cleanup EXIT
 
-osd="osd_cat -f -*-*-medium-r-*--48-*-*-*-*-*-*-* -c green -S white -s 6 -u black -O 2 -A center -o 300"
-osderr="osd_cat -f -*-*-medium-r-*--48-*-*-*-*-*-*-* -c red -S black -s 6 -u white -O 2 -A center -o 300"
+osd="osd_cat -f -*-*-medium-r-*--48-*-*-*-*-*-*-* -c green -S white -s 5 -u black -O 2 -A left"
+osderr="osd_cat -f -*-*-medium-r-*--48-*-*-*-*-*-*-* -c red -S black -s 5 -u white -O 2 -A left"
 
 civerr()
 {
