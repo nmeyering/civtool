@@ -186,7 +186,7 @@ civpush()
 		civerr "git add failed!"
 		exit
 	fi
-	if ! git commit -m "Your turn!"
+	if ! git commit -m 'Your turn!'
 	then
 		civerr "git commit failed!"
 		exit
