@@ -1,30 +1,30 @@
 #!/bin/bash
-exec &>> /tmp/civtool.log
+#exec &>> /tmp/civtool.log
 echo "[civ] ---------- started ----------"
 
-if [[ ! -d $XDG_CONFIG_HOME/civtool ]]
+if [[ ! -d "$XDG_CONFIG_HOME/civtool" ]]
 then
-	mkdir $XDG_CONFIG_HOME/civtool
-	touch $XDG_CONFIG_HOME/civtool/exe_path
-	touch $XDG_CONFIG_HOME/civtool/wine_path
-	touch $XDG_CONFIG_HOME/civtool/player_name
-	touch $XDG_CONFIG_HOME/civtool/user
-	touch $XDG_CONFIG_HOME/civtool/game
-	echo "set paths and player name in ${XDG_CONFIG_HOME}/civtool/ now.."
+	mkdir "$XDG_CONFIG_HOME/civtool"
+	touch "$XDG_CONFIG_HOME/civtool/exe_path"
+	touch "$XDG_CONFIG_HOME/civtool/wine_path"
+	touch "$XDG_CONFIG_HOME/civtool/player_name"
+	touch "$XDG_CONFIG_HOME/civtool/user"
+	touch "$XDG_CONFIG_HOME/civtool/game"
+	echo "fill config variables in ${XDG_CONFIG_HOME}/civtool/ now.."
 	exit
 fi
 
-exe_path=$(cat $XDG_CONFIG_HOME/civtool/exe_path)
-wine_path=$(cat $XDG_CONFIG_HOME/civtool/wine_path)
-player_name=$(cat $XDG_CONFIG_HOME/civtool/player_name)
-game=$(cat $XDG_CONFIG_HOME/civtool/game)
-user=$(cat $XDG_CONFIG_HOME/civtool/user)
+exe_path="$(head -n 1 "$XDG_CONFIG_HOME/civtool/exe_path")"
+wine_path="$(head -n 1 $XDG_CONFIG_HOME/civtool/wine_path)"
+player_name="$(head -n 1 $XDG_CONFIG_HOME/civtool/player_name)"
+game="$(head -n 1 $XDG_CONFIG_HOME/civtool/game)"
+user="$(head -n 1 $XDG_CONFIG_HOME/civtool/user)"
 # set this to the common server that will be used as a mailbox to exchange savegames
-host=$(cat $XDG_CONFIG_HOME/civtool/host)
+host="$(head -n 1 $XDG_CONFIG_HOME/civtool/host)"
 # set this to your opponent's IP address or hostname if you want to enable auto-pulling
-opponent=$(cat $XDG_CONFIG_HOME/civtool/opponent)
+opponent="$(head -n 1 $XDG_CONFIG_HOME/civtool/opponent)"
 # set this to the port to use for pulling and sending pull-requests
-port=$(cat $XDG_CONFIG_HOME/civtool/port)
+port="$(head -n 1 $XDG_CONFIG_HOME/civtool/port)"
 # can auto-pull
 unset autopull
 if which nc &> /dev/null && [[ -n $opponent ]] && [[ -n $port ]]
@@ -46,19 +46,21 @@ cleanup()
 
 trap cleanup EXIT
 
-osd="osd_cat -f -*-*-medium-r-*--48-*-*-*-*-*-*-* -c green -S white -s 5 -u black -O 2 -A left"
-osderr="osd_cat -f -*-*-medium-r-*--48-*-*-*-*-*-*-* -c red -S black -s 5 -u white -O 2 -A left"
+osd="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c green -S white -s 5 -u black -O 2 -A left"
+osderr="osd_cat -f -*-*-medium-r-*--32-*-*-*-*-*-*-* -c red -S black -s 5 -u white -O 2 -A left"
 
 civerr()
 {
-	echo $1
-	$osderr <<< $1 &
+	echo "$1"
+	$osderr <<< "$1" &
+	disown %%
 }
 
 civout()
 {
-	echo $1
-	$osd <<< $1 &
+	echo "$1"
+	$osd <<< "$1" &
+	disown %%
 }
 
 repos_path="${wine_path}/My Games/civ4/Saves/pbem/${game}"
@@ -100,8 +102,8 @@ civping()
 {
 	if [[ -n $autopull ]]
 	then
-		echo "[civ] sending a pull request to $opponent on port $port"
-		nc -vv -q 0 $opponent $port <<< "pull-request"
+		civout "[civ] sending a pull request to $opponent on port $port"
+		nc -vv -q 0 "$opponent" "$port" <<< "pull-request"
 	else
 		echo "[civ] not using autopull: nc=$(which nc); opponent=$opponent; port=$port"
 	fi
@@ -229,13 +231,6 @@ civcont()
 	fi
 }
 
-civtest()
-{
-	echo "[civ] starting up pull daemon."
-	./civpulld &
-	wait
-}
-
 case "$1" in 
 	"start"	) civstart ;; 
 	"pull"	) civpull ;;
@@ -247,7 +242,5 @@ case "$1" in
 	"continue" ) civcont ;; 
 	"resume" ) civcont ;; 
 	"unpause"	) civcont ;; 
-	"ping" ) civping ;;
-	"test" ) civtest ;;
 	* ) echo "unrecognized command" ;;
 esac
