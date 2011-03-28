@@ -168,7 +168,9 @@ civpull()
 
 civpush()
 {
-	latest_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep -v "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
+	#latest_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%p %A@\n" | grep -v "$player_name" | sort | head -n 1 | awk '{printf($1)}')"
+	latest_save="$(find . -type f -name "*.Civ4SavedGame" -printf "%A@ %p\n" | grep -v "$player_name" | sort -r | head -n 1 | awk '{printf($2)}')"
+
 	if [[ -z $latest_save ]]
 	then
 		civerr "No new save game found to send to other player!"
